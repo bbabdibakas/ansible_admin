@@ -6,12 +6,20 @@
   roles:
     - role: installDocker
       when: ansible_facts.os_family == "Debian"
-    # условие на уровне всего playbook, если сервер не Debian-based, то не будет запускаться
+      # условие на уровне всего playbook, если сервер не Debian-based, то не будет запускаться
 
     - role: installApache
       when: ansible_facts.os_family == "Debian"
       # условие на уровне всего playbook, если сервер не Debian-based, то не будет запускаться
 
     - role: installNodejs
+      when: ansible_facts.os_family == "Debian"
+      # условие на уровне всего playbook, если сервер не Debian-based, то не будет запускаться
+
+    - role: installComposer
+      when: ansible_facts.os_family == "Debian"
+      # условие на уровне всего playbook, если сервер не Debian-based, то не будет запускаться
+
+    - role: setupDirectories
       when: ansible_facts.os_family == "Debian"
       # условие на уровне всего playbook, если сервер не Debian-based, то не будет запускаться
