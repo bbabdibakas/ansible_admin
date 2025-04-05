@@ -1,0 +1,45 @@
+---
+- name: Updating apt cache
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600  # чтобы не обновлял каждый раз без надобности
+
+- name: Install dependencies for Docker
+  apt:
+    name:
+      - ca-certificates
+      - curl
+    state: present
+
+- name: Create directory for apt keyrings
+  file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: '0755'
+
+- name: Download Docker GPG key
+  command: curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
+
+- name: Set permissions on Docker GPG key
+  command: chmod a+r /etc/apt/keyrings/docker.asc
+
+- name: Add Docker APT repository
+  apt_repository:
+    repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian {{ ansible_facts.lsb.codename }} stable"
+    filename: docker
+    state: present
+
+- name: Update apt cache after adding Docker repository
+  apt:
+    update_cache: yes
+    cache_valid_time: 0 # указан 0 для Force-обновления после добавлении репозитории
+
+- name: Install Docker packages
+  apt:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-buildx-plugin
+      - docker-compose-plugin
+    state: present
