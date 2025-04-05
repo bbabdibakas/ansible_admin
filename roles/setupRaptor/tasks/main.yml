@@ -1,0 +1,25 @@
+---
+- name: Clone Raptor repository using shell
+  shell: |
+    if [ ! -d /var/www/raptor ]; then
+      cd /var/www && git clone "{{ raptor_repo_url }}"
+    fi
+
+- name: Change owner of raptor
+  shell: chown -R www-data:www-data /var/www/raptor
+
+- name: Copy the .env file from files directory to server
+  template:
+    src: "{{ 'envm1.j2' if 'm1' in inventory_hostname else ('envm2.j2' if 'm2' in inventory_hostname else 'envm0.j2') }}"
+    dest: /var/www/raptor/.env
+    owner: www-data
+    group: www-data
+    mode: '0644'
+
+- name: Composer install as www-data
+  community.general.composer:
+    command: install
+    working_dir: /var/www/raptor
+  environment:
+    COMPOSER_NO_INTERACTION: "1"
+  become_user: www-data

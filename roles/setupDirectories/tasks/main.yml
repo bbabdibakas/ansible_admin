@@ -1,9 +1,4 @@
 ---
-- name: Ensure sshfs is installed
-  package:
-    name: sshfs
-    state: present
-
 - name: Create the pass file in root directory
   copy:
     content: "Teen8841"

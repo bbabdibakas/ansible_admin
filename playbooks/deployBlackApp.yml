@@ -2,6 +2,8 @@
 - name: Deploy BlackApp
   hosts: webservers
   gather_facts: true # Сбор данных о сервере
+  vars_files:
+  - ../vars/vars.yml
 
   roles:
     - role: installDocker
@@ -16,10 +18,6 @@
       when: ansible_facts.os_family == "Debian"
       # условие на уровне всего playbook, если сервер не Debian-based, то не будет запускаться
 
-    - role: installComposer
-      when: ansible_facts.os_family == "Debian"
-      # условие на уровне всего playbook, если сервер не Debian-based, то не будет запускаться
-
-    - role: setupDirectories
+    - role: setupRaptor
       when: ansible_facts.os_family == "Debian"
       # условие на уровне всего playbook, если сервер не Debian-based, то не будет запускаться
