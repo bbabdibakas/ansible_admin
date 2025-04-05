@@ -1,16 +1,4 @@
 ---
-- name: Updating apt cache
-  apt:
-    update_cache: yes
-    cache_valid_time: 3600  # чтобы не обновлял каждый раз без надобности
-
-- name: Install dependencies for Docker
-  apt:
-    name:
-      - ca-certificates
-      - curl
-    state: present
-
 - name: Create directory for apt keyrings
   file:
     path: /etc/apt/keyrings

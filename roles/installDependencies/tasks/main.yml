@@ -1,0 +1,18 @@
+---
+- name: Updating apt cache
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600  # чтобы не обновлял каждый раз без надобности
+
+- name: Install dependencies (curl, wget, gnupg2, ca-certificates, lsb-release, apt-transport-https, git, unzip)
+  apt:
+    name:
+      - curl
+      - wget
+      - gnupg2
+      - ca-certificates
+      - lsb-release
+      - apt-transport-https
+      - git
+      - unzip
+    state: present

@@ -1,0 +1,52 @@
+---
+- name: Create directory for apt keyrings
+  file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: '0755'
+
+- name: Check if PHP GPG key is already present
+  stat:
+    path: /tmp/apt.gpg
+  register: php_key
+
+- name: Download the Sury PHP GPG key
+  get_url:
+    url: https://packages.sury.org/php/apt.gpg
+    dest: /tmp/apt.gpg
+  when: not php_key.stat.exists # php не поддерживает безопасное добавление ключа gpg, поэтому нужна проверка
+
+- name: Add the Sury PHP GPG key
+  shell: apt-key add /tmp/apt.gpg
+  when: not php_key.stat.exists # php не поддерживает безопасное добавление ключа gpg, поэтому нужна проверка
+
+- name: Add the Sury PHP repository
+  apt_repository:
+    repo: "deb https://packages.sury.org/php/ {{ ansible_facts.lsb.codename }} main"
+    state: present
+    filename: php7
+
+- name: Update apt cache after adding PHP repository
+  apt:
+    update_cache: yes
+    cache_valid_time: 0 # указан 0 для Force-обновления после добавлении репозитории
+  when: not php_key.stat.exists # php не поддерживает безопасное добавление ключа gpg, поэтому нужна проверка
+
+- name: Install Apache, PHP packages
+  apt:
+    name:
+      - apache2
+      - php7.1
+      - php7.1-mbstring
+      - php7.1-cli
+      - php7.1-curl
+      - php7.1-sqlite3
+    state: present
+
+- name: Copy ports.conf to Apache configuration directory
+  template:
+    src: ports.conf.j2
+    dest: /etc/apache2/ports.conf
+    owner: root
+    group: root
+    mode: '0644'
