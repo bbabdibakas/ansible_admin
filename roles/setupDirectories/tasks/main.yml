@@ -19,6 +19,14 @@
     - /var/www/sessions
     - /var/www/html
 
+- name: Create raptor_sessions directory as www-data
+  file:
+    path: "/var/www/sessions/raptor_sessions_{{ inventory_hostname.split('.')[0] }}"
+    state: directory
+    mode: '0755'
+    owner: www-data
+    group: www-data
+
 - name: Ensure /var/www/sessions is not already mounted
   shell: mountpoint -q /var/www/sessions
   register: sshfs_mounted

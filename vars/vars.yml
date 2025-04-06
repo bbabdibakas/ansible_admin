@@ -1,2 +1,5 @@
 # здесь будет указываться переменные как ссылка на gitlab репозитории
+# используется внутри роли setupRaptor
 raptor_repo_url: ""
+# нужен для создание сертификатов https через certbot
+admin_email: "admin@gmail.com"

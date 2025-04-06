@@ -15,4 +15,6 @@
       - apt-transport-https
       - git
       - unzip
+      - certbot
+      - python3-certbot-apache
     state: present

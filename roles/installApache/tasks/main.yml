@@ -50,3 +50,10 @@
     owner: root
     group: root
     mode: '0644'
+
+- name:  Obtain Let's Encrypt SSL certificate via Apache
+  command: >
+    certbot --apache -n --agree-tos --email {{ admin_email }}
+    -d {{ inventory_hostname }}
+  args:
+    creates: "/etc/letsencrypt/live/{{ inventory_hostname }}/fullchain.pem"
