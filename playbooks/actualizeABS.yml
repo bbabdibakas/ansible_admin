@@ -44,6 +44,11 @@
             msg: "'use' flag is false. Skipping this host."
           when: use_flag[0] == 'false'
 
+        - name: Extract phone from dialog360 block
+          set_fact:
+            phone: "{{ dialog360 | regex_search(\"phone:\\s*'([^']*)'\", '\\1') }}"
+          when: dialog360 is defined
+
         - name: Extract api key from dialog360 block
           set_fact:
             api_key: "{{ dialog360 | regex_search(\"api_key:\\s*'([^']*)'\", '\\1') }}"
@@ -84,10 +89,19 @@
           set_fact:
             log_filename: "{{ logs_directory }}/{{ inventory_hostname }}_{{ lookup('pipe', 'date +%Y%m%d')}}.log"
 
+        - name: Execute SQLite query to get the last log date
+          command: sqlite3 /var/www/abs/chatbot.db "SELECT created_at FROM dialogs ORDER BY created_at DESC LIMIT 1;"
+          register: sqlite_query_result
+          changed_when: false
+
         - name: Write error to log file on local machine if the request fails
           local_action: 
             module: copy
-            content: "{{ health_response }}"
+            content: |
+              phone: "{{ phone[0] }}"
+              api_key: "{{ api_key[0] }}"
+              response: "{{ health_response.json.error }}"
+              last_used_day: "{{ sqlite_query_result.stdout }}"
             dest: "{{ log_filename }}"
             mode: '0644'
             backup: no

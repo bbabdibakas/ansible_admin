@@ -22,7 +22,7 @@
 
 - deployABS
 
-Для актуализации:
+Для актуализации :
 
 - actualizeABS
 
@@ -35,6 +35,7 @@ ansible --version
 2) Добавьте доменное имя или IP-адрес хоста в файл inventories/deploy.ini, например:
 
 [webservers]
+
 your.botserver.com
 
 3) Убедитесь, что файл vars/vars.yml заполнен в соответствии с нужными параметрами окружения.
