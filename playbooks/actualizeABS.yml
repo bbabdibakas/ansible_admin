@@ -1,0 +1,93 @@
+- name: Actualize ABS
+  hosts: webservers
+  gather_facts: false
+  vars:
+    config_path: /var/www/abs/config.js
+    logs_directory: "../logs"
+
+  tasks:
+    - name: First block - Ensure config.js file exists and process
+      block:
+        - name: Check if config.js file exists
+          stat:
+            path: "{{ config_path }}"
+          register: file_stat
+
+        - name: Slurp the config.js file content
+          slurp:
+            src: "{{ config_path }}"
+          register: file_content
+          when: file_stat.stat.exists
+
+        - name: Extract dialog360 block from config.js
+          set_fact:
+            dialog360: "{{ (file_content.content | b64decode) | regex_search('(?s)dialog360:.*?},', '\\0') }}"
+          when: file_stat.stat.exists
+
+      rescue:
+        - name: Print error message if config.js is missing or processing fails
+          debug:
+            msg: "There was an error processing the config.js file. The task has been skipped or failed."
+
+        - name: End the host in case of an error
+          meta: end_host
+    
+    - name: Second block - Extract 'use' flag and api_key
+      block:
+        - name: Extract 'use' flag from dialog360
+          set_fact:
+            use_flag: "{{ dialog360 | regex_search(\"use:\\s*(true|false)\", '\\1') }}"
+          when: dialog360 is defined
+
+        - name: Fail if use is false
+          fail:
+            msg: "'use' flag is false. Skipping this host."
+          when: use_flag[0] == 'false'
+
+        - name: Extract api key from dialog360 block
+          set_fact:
+            api_key: "{{ dialog360 | regex_search(\"api_key:\\s*'([^']*)'\", '\\1') }}"
+          when: dialog360 is defined
+
+      rescue:
+        - name: Print error message if config.js is missing or processing fails
+          debug:
+            msg: "Host is not for dialog360. The task has been skipped or failed."
+
+        - name: End the host in case of an error
+          meta: end_host
+
+    - name: Third block - Make health_status request
+      block:
+        - name: Make health_status request to 360dialog API 
+          uri:
+            url: https://waba-v2.360dialog.io/health_status
+            method: GET
+            headers:
+              D360-API-KEY: "{{ api_key[0] }}"
+              Content-Type: application/json
+            timeout: 10  # Таймаут в 10 секунд
+          register: health_response
+          when: api_key is defined
+
+        - name: Print API health_status response
+          debug:
+            var: health_response
+          when: health_response is defined
+
+      rescue:
+        - name: Print error message if API request fails
+          debug:
+            msg: "Failed to make a health status request to the 360dialog API."
+
+        - name: Create log file name based on hostname and date
+          set_fact:
+            log_filename: "{{ logs_directory }}/{{ inventory_hostname }}_{{ lookup('pipe', 'date +%Y%m%d')}}.log"
+
+        - name: Write error to log file on local machine if the request fails
+          local_action: 
+            module: copy
+            content: "{{ health_response }}"
+            dest: "{{ log_filename }}"
+            mode: '0644'
+            backup: no

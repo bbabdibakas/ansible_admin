@@ -12,13 +12,33 @@
 
 ---
 
+##    Плейбуки
+
+все плейбуки находятся в директории:
+
+- playbooks
+
+Для деплоя ABS:
+
+- deployABS
+
+Для актуализации:
+
+- actualizeABS
+
 ## 🧩 Использование
 
 1) Убедитесь, что установлен Ansible версии 2.18+:
+
 ansible --version
+
 2) Добавьте доменное имя или IP-адрес хоста в файл inventories/deploy.ini, например:
+
 [webservers]
 your.botserver.com
+
 3) Убедитесь, что файл vars/vars.yml заполнен в соответствии с нужными параметрами окружения.
+
 4) Запустите плейбук:
+
 ansible-playbook playbooks/deployABS
