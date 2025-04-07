@@ -14,7 +14,10 @@
       - lsb-release
       - apt-transport-https
       - git
+      - sshfs
       - unzip
       - certbot
+      - supervisor
+      - tmux
       - python3-certbot-apache
     state: present

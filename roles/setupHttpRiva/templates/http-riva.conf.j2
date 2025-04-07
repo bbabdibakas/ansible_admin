@@ -1,0 +1,12 @@
+[program:http-riva]
+directory=/var/www/http-riva
+process_name=%(program_name)s-%(process_num)02d
+command=npm run start
+autostart=true
+autorestart=true
+stopasgroup=true
+killasgroup=true
+user=root
+numprocs=1
+redirect_stderr=true
+stdout_logfile=/var/log/http-riva/stdout-%(process_num)02d.log

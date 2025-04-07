@@ -1,0 +1,25 @@
+---
+- name: Generate http-riva.conf file
+  template:
+    src: http-riva.conf.j2
+    dest: /etc/supervisor/conf.d/http-riva.conf
+    owner: root
+    group: root
+    mode: '0644'
+    
+- name: Ensure /var/www directory exists
+  file:
+    path: /var/www
+    state: directory
+
+- name: Clone HttpRiva repository using shell
+  shell: |
+    if [ ! -d /var/www/http-riva ]; then
+      cd /var/www && git clone {{ http_riva_repo_url }}
+    fi
+
+- name: Run npm install
+  shell: |
+    if [ -d /var/www/http-riva ]; then
+      cd /var/www/http-riva && npm install
+    fi
