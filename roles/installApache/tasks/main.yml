@@ -43,6 +43,13 @@
       - php7.1-sqlite3
     state: present
 
+- name:  Obtain Let's Encrypt SSL certificate via Apache
+  command: >
+    certbot --apache -n --agree-tos --email {{ admin_email }}
+    -d {{ inventory_hostname }}
+  args:
+    creates: "/etc/letsencrypt/live/{{ inventory_hostname }}/fullchain.pem"
+
 - name: Copy ports.conf to Apache configuration directory
   template:
     src: ports.conf.j2
@@ -50,10 +57,3 @@
     owner: root
     group: root
     mode: '0644'
-
-- name:  Obtain Let's Encrypt SSL certificate via Apache
-  command: >
-    certbot --apache -n --agree-tos --email {{ admin_email }}
-    -d {{ inventory_hostname }}
-  args:
-    creates: "/etc/letsencrypt/live/{{ inventory_hostname }}/fullchain.pem"

@@ -52,3 +52,11 @@
     group: root
     mode: 0644
     backup: yes
+
+- name: Generate chatbot.timer file from files directory to server
+  template:
+    src: interface.php.j2
+    dest: /var/www/html/interface.php
+    owner: www-data
+    group: www-data
+    mode: '0644'

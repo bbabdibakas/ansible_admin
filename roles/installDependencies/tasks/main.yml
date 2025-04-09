@@ -19,5 +19,6 @@
       - certbot
       - supervisor
       - tmux
+      - sqlite3
       - python3-certbot-apache
     state: present
