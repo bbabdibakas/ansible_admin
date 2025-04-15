@@ -1,0 +1,36 @@
+---
+- name: Ensure directory for apt keyrings exist
+  file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: '0755'
+
+- name: Check if NodeSource GPG key already present
+  stat:
+    path: /etc/apt/keyrings/nodesource.asc
+  register: nodesource_key
+
+- name: Download NodeSource GPG key
+  get_url:
+    url: https://deb.nodesource.com/gpgkey/nodesource.gpg.key
+    dest: /etc/apt/keyrings/nodesource.asc
+    mode: '0644'
+  when: not nodesource_key.stat.exists
+
+- name: Add NodeSource Node.js 16.x repo
+  apt_repository:
+    repo: "deb [signed-by=/etc/apt/keyrings/nodesource.asc] https://deb.nodesource.com/node_16.x {{ ansible_facts.lsb.codename | lower }} main"
+    state: present
+    filename: nodesource
+
+- name: Update apt cache after adding NodeSource repository
+  apt:
+    update_cache: yes
+    cache_valid_time: 0 # указан 0 для Force-обновления после добавлении репозитории
+  when: not nodesource_key.stat.exists
+
+- name: Install NodeJS packages
+  apt:
+    name:
+      - nodejs
+    state: present

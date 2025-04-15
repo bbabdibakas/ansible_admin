@@ -1,0 +1,139 @@
+export default {
+  id: null,
+  api_key: '',   // From CRM in ATS - Servers section
+  loglevel: 5,   // Level log to database. 0 - none, 5 - all
+  conlevel: 5,   // Level log to console.  0 - none, 5 - all
+  orders: {
+    run: false,
+    sleep: 300000,
+    delay: 300,
+  },
+  server: {
+    host: '0.0.0.0',
+    port: 80,
+    secure_port: 443,
+    letsencrypt: true,
+    cert: '/etc/letsencrypt/live/{{ inventory_hostname }}/cert.pem',
+    key: '/etc/letsencrypt/live/{{ inventory_hostname }}/privkey.pem',
+    ca: '/etc/letsencrypt/live/{{ inventory_hostname }}/chain.pem',
+  },
+  crm: {
+    api_url: 'https://back.m1.acsolutions.ai/api/v2',
+  },
+  /*
+  * Login into https://my.telegram.org
+  * Go to https://my.telegram.org/apps and fill out the form
+  * Take the api_id and api_hash from the "app configuration" section
+  */
+  telegram: {
+    use: false,
+    account_id: null,
+    api_id: '',            // From my.telegram.org
+    api_hash: '',          // From my.telegram.org
+    phone: '+',            // Phone number starts with + without spaces
+    code: '',              // Auth code. Must be sended on hardware phone
+    phone_code_hash: '',   // Code hash from console on sign in attempt
+    admins: [
+      'axsmak',
+      'ASTsergey',
+    ],
+  },
+  dialog360: {
+    use: false,
+    account_id: null,
+    api_key: '',
+    phone: '+',   // Phone number starts with + without spaces
+    webhook: 'https://{{ inventory_hostname }}/api/360dialog/whatsapp',
+  },
+  wmc: {
+    api_url: 'https://wmc.m1.acsolutions.ai:9000/api',
+    api_key: '821bf4cfb0ff49fd0cadab6291da64cc',
+    beat_interval: 150, // seconds
+  },
+  whatsapp: {
+    phone: '+77777431033',   // Phone number starts with + without spaces
+  },
+  /**
+   * @param account_id - можно получить из crm
+   * @param phone - номер без +
+   * @param host - хост на котором находиться сервис
+   * @param username - имя пользователя (Можно получить в сервисе black_app)
+   * @param password - пароль (Можно получить в сервисе black_app)
+   */
+  black_app: {
+    use: false,
+    account_id: 0,
+    phone: '00000000000',
+    host: 'http://black-app',
+    username: 'service-user',
+    password: 'service-password',
+  },
+  /**
+   * Параметры подключения для Botmaker сервиса
+   */
+  botmaker: {
+    use: false,  //Включить или выключить сервис в АБС
+    account_id: 48, //Аккаунт в СРМ 'сервисы чат ботов'
+    api_url: 'https://api.botmaker.com/v2.0',
+    phone: '+XXXXXXXXXXX', //Номер зарегистрированный на сервисе Botmaker
+    client_id: '', //ID клиента в сервисе Botmaker например username2
+    secret_id: '', //Секретный ключ с ЛК Botmaker
+    token: '', //Токен с ЛК Botmaker
+    refresh_token: '' //Refresh токен с ЛК Botmaker
+  },
+  raptor: {
+      api_url: 'http://127.0.0.1:8080',                // URL raptor server
+      api_key: '{{ raptor_api_key }}',                 // Fixed api key from CRM .env file (BOT_HASH)
+  },
+  riva: {
+    api_url: 'http://localhost:5050',
+    riva_url: 'all.riva.dstcrm.online:50051',
+  },
+  file_storage: {
+    api_key: 'R01hdc6VdYvCEKeA4oGqGVBk5Q9FuPCPFBOb8Abj',
+    api_url: 'https://fs.acsolutions.ai:4430/api',
+    store_types: [
+      'image',
+      'document',
+      'voice',
+      'video',
+      'audio',
+     // 'sticker',
+   ],
+  },
+  statuses: {
+    started: 774,                                    // ID of status on dialog started
+    not_in_messengers: 818,                          // ID of status when user not found in messengers
+    later: 819,
+    finished: 859,
+  },
+  behavior: {                  // Поведение
+    reply_timing: {            // Сколько ждём прежде чем начать набирать сообщение
+      up_to: {                 // Зависит от того, сколько времени прошло с последнего сообщения
+        half_min: [0,  1],     // До полминуты            - ждём не больше секунды
+        one_min:  [1,  5],     // От полминуты до минуты  - ждём от секунды до пяти секунд
+        five_min: [5,  30],    // От минуты до пяти минут - ждём от пяти до 30 секунд
+        one_hour: [10, 90],    // От пяти минут до часа   - ждём от десяти секунд до полутора минут
+      },
+      after: [60, 180],        // Больше часа             - ждём от минуты до трёх минут
+    },
+    typing_speed: 600,         // Скорость печати (символов в минуту)
+    delay_after_message: 2000, // Сколько ожидаем после того как пользователь ответил, прежде чем действовать
+  },
+  /**
+  * Подключения для rabbitmq
+  */
+  rabbitmq: {
+    host: '65.21.71.121',
+    port: 5672,
+    user: '{{ rabbitmg_user_m1 }}',
+    password: '{{ rabbitmg_pass_m1 }}',
+    vhost: '/',
+    exchanges: {
+      abs_service: 'abs-service',
+    },
+    routing_keys: {
+      message_created: 'message.created',
+    },
+  },
+};

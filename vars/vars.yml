@@ -1,6 +1,17 @@
 # здесь будет указываться переменные как ссылка на gitlab репозитории, пароли и ключи
-# используется внутри роли setupSessionsDir
+# используется внутри роли setupRaptor/setupSessionsDir
 pass_for_sshfs_session: ""
-# используется внутри роли setupRaptor
+# используется внутри роли setupRaptor/setupRaptorDir
 raptor_repo_url: ""
-env_hash: ""
+raptor_api_key: ""
+# используется внутри роли setupABS
+abs_repo_url: ""
+file_storage_api_key: ""
+rabbitmg_user_m0: ""
+rabbitmg_pass_m0: ""
+rabbitmg_user_m1: ""
+rabbitmg_pass_m1: ""
+rabbitmg_user_m2: ""
+rabbitmg_pass_m2: ""
+# используется внутри роли setupHttpRiva
+http_riva_repo_url: ""

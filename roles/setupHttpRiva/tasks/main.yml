@@ -1,0 +1,27 @@
+---
+- name: Ensure dependencies are installed
+  apt:
+    name:
+      - supervisor
+    state: latest # Проверка на установку каждого пакета, также обновляет версию пакета если он уже установлен и доступна новая версия
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Clone http-riva repository into /var/www/http-riva
+  git:
+    repo: "{{ http_riva_repo_url }}"
+    dest: /var/www/http-riva
+    update: yes
+    force: no
+
+- name: Check if node_modules exists
+  stat:
+    path: /var/www/http-riva/node_modules
+  register: npm_installed
+
+- name: Run npm install
+  shell: |
+    if [ -d /var/www/http-riva ]; then
+      cd /var/www/http-riva && npm install
+    fi
+  when: not npm_installed.stat.exists

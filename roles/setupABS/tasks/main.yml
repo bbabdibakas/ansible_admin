@@ -1,0 +1,43 @@
+---
+- name: Ensure dependencies are installed
+  apt:
+    name:
+      - nodejs
+    state: latest # Проверка на установку каждого пакета, также обновляет версию пакета если он уже установлен и доступна новая версия
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Clone ABS repository into /var/www/abs
+  git:
+    repo: "{{ abs_repo_url }}"
+    dest: /var/www/abs
+    update: yes
+    force: no
+
+- name: Check if node_modules exists
+  stat:
+    path: /var/www/abs/node_modules
+  register: npm_installed
+
+- name: Run npm install
+  shell: |
+    if [ -d /var/www/abs ]; then
+      cd /var/www/abs && npm install
+    fi
+  when: not npm_installed.stat.exists
+
+- name: Run npm update @mtproto/core
+  shell: |
+    if [ -d /var/www/abs ]; then
+      cd /var/www/abs && npm update @mtproto/core
+    fi
+  when: npm_installed.stat.exists
+
+- name: Generate the config.js file
+  template:
+    src: "{{ 'configm1.js.j2' if 'm1' in inventory_hostname else ('configm2.js.j2' if 'm2' in inventory_hostname else 'configm0.js.j2') }}"
+    dest: "/var/www/abs/config.js"
+    owner: root
+    group: root
+    mode: 0644
+    backup: yes
