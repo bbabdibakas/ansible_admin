@@ -1,0 +1,46 @@
+---
+- name: Ensure directory for apt keyrings exist
+  file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: "0755"
+
+- name: Check if PHP GPG key is already present
+  stat:
+    path: /etc/apt/keyrings/php.gpg
+  register: php_gpg_key
+
+- name: Download PHP GPG key into keyrings dir
+  get_url:
+    url: https://packages.sury.org/php/apt.gpg
+    dest: /etc/apt/keyrings/php.gpg
+    mode: "0644"
+  when: not php_gpg_key.stat.exists
+
+- name: Add the Sury PHP repository
+  apt_repository:
+    repo: "deb [signed-by=/etc/apt/keyrings/php.gpg] https://packages.sury.org/php/ {{ ansible_facts.lsb.codename }} main"
+    state: present
+    filename: php7
+    update_cache: true
+
+- name: Install Apache, PHP packages
+  apt:
+    name:
+      - apache2
+      - php7.1
+      - php7.1-mbstring
+      - php7.1-cli
+      - php7.1-curl
+      - php7.1-sqlite3
+      - certbot
+    state: present
+
+- name: Generate ports.conf to Apache configuration directory
+  template:
+    src: ports.conf.j2
+    dest: /etc/apache2/ports.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Restart apache2 service # Обработчик для перезапуска сервиса apache2 если изменится конфиг

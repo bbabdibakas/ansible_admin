@@ -1,0 +1,57 @@
+- name: Gather installed package facts
+  package_facts:
+    manager: auto
+  # Получаем информацию о установленных пакетах
+
+- name: Check if apache2 is installed
+  fail:
+    msg: "The apache2 package is not installed. Stopping the process."
+  when: "'apache2' not in ansible_facts.packages"
+  # Проверяем установлен ли пакет apache2
+
+- name: Check if certbot is installed
+  fail:
+    msg: "The certbot package is not installed. Stopping the process."
+  when: "'certbot' not in ansible_facts.packages"
+  # Проверяем установлен ли пакет certbot
+
+- name: Check if certificate file exists
+  stat:
+    path: "/etc/letsencrypt/live/{{ inventory_hostname }}/cert.pem"
+  register: cert_valid_check
+  # Проверяем наличие сертификата
+
+- name: Check if certificate expires in less than 30 days
+  shell: |
+    end_date=$(openssl x509 -enddate -noout -in /etc/letsencrypt/live/{{ inventory_hostname }}/cert.pem | cut -d= -f2)
+    end_timestamp=$(date -d "$end_date" +%s)
+    now_timestamp=$(date +%s)
+    days_left=$(( (end_timestamp - now_timestamp) / 86400 ))
+    echo $days_left
+  register: cert_days_remaining
+  changed_when: false
+  failed_when: false
+  when: cert_valid_check.stat.exists
+  # Проверяем срок сертификата если сертификат существует
+
+- name: Set fact for cert_expiring
+  set_fact:
+    cert_expiring: "{{ cert_days_remaining.stdout | int }}"
+  when: cert_valid_check.stat.exists
+
+- name: Stop Apache2 service before Certbot standalone challenge
+  service:
+    name: apache2
+    state: stopped
+  when: not cert_valid_check.stat.exists or cert_expiring < 30
+
+- name: Obtain SSL certificate using Certbot
+  command: certbot certonly --standalone --non-interactive --agree-tos --email admin@gmail.com -d {{ inventory_hostname }}
+  register: certbot_result
+  when: not cert_valid_check.stat.exists or cert_expiring < 30
+
+- name: Start Apache2 service
+  service:
+    name: apache2
+    state: restarted
+  when: not cert_valid_check.stat.exists or cert_expiring < 30

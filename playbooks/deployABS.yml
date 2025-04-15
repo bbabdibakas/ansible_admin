@@ -1,0 +1,14 @@
+---
+- name: Deploy ABS
+  gather_facts: true # Сбор данных о сервере
+  hosts: webservers
+  roles:
+    - role: installApache
+      when: # условие на уровне всего playbook, если сервер не Debian 11, то не будет запускаться
+        - ansible_distribution == "Debian"
+        - ansible_distribution_major_version == "11"
+
+    - role: renewSLLCertificates
+      when: # условие на уровне всего playbook, если сервер не Debian 11, то не будет запускаться
+        - ansible_distribution == "Debian"
+        - ansible_distribution_major_version == "11"
