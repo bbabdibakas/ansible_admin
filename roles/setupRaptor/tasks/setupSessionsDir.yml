@@ -1,0 +1,49 @@
+---
+- name: Ensure dependencies are installed
+  apt:
+    name:
+      - sshfs
+    state: latest # Проверка на установку каждого пакета, также обновляет версию пакета если он уже установлен и доступна новая версия
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Ensure /var/www/sessions directory exists
+  file:
+    path: /var/www/sessions
+    state: directory
+    owner: www-data # Директорию будет использовать сервис Raptor на php и его пользователь www-data
+    group: www-data
+    mode: 0755
+
+- name: Generate the pass file in root directory
+  copy:
+    content: "{{ pass_for_sshfs_session }}"
+    dest: /root/pass
+    owner: root
+    group: root
+    mode: "0600"
+
+- name: Check if /var/www/sessions is already mounted
+  command: mountpoint -q /var/www/sessions
+  register: sshfs_mount_check
+  ignore_errors: true # rc вернет 0 если не примонтирован и ansible считает это по умолчанию ошибкой, поэтому нужно игнорировать ошибку
+
+- name: sshfs mount the ftp disk
+  shell: sshfs session@decoder.acsolutions.ai:/home/session/ /var/www/sessions -o StrictHostKeyChecking=no,UserKnownHostsFile=/dev/null,ServerAliveInterval=15,ServerAliveCountMax=3,allow_other,uid=33,gid=33,password_stdin < /root/pass
+  when: sshfs_mount_check.rc != 0
+# StrictHostKeyChecking=no	Не спрашивать подтверждение ключа хоста при первом подключении (небезопасно, но удобно для автоматизации)
+# UserKnownHostsFile=/dev/null	Не сохранять ключ в ~/.ssh/known_hosts
+# ServerAliveInterval=15	Каждые 15 сек слать keep-alive
+# ServerAliveCountMax=3	После 3 потерь keep-alive — отключение
+# allow_other	Разрешить доступ к примонтированной директории другим пользователям (требует user_allow_other в /etc/fuse.conf)
+# uid=33	Установить владельцем файлов UID 33 (www-data в Debian/Ubuntu)
+# gid=33	То же самое, но для группы
+# password_stdin	Передаёт пароль через стандартный ввод — безопаснее, чем просто в командной строке
+
+- name: Ensure raptor_sessions_hostname* directory exists
+  file:
+    path: "/var/www/sessions/raptor_sessions_{{ inventory_hostname.split('.')[0] }}"
+    state: directory
+    owner: www-data
+    group: www-data
+    mode: "0755"

@@ -1,0 +1,7 @@
+- name: Ensure /var/www/storage directory exists
+  file:
+    path: /var/www/storage
+    state: directory
+    owner: www-data # Директорию будет использовать сервис Raptor на php и его пользователь www-data
+    group: www-data
+    mode: "0755"

@@ -1,0 +1,17 @@
+---
+- name: Ensure /var/www directory exists
+  file:
+    path: /var/www
+    state: directory
+
+- name: Include setupHTMLDir tasks
+  import_tasks: setupHTMLDir.yml
+
+- name: Include setupSessionsDir tasks
+  import_tasks: setupSessionsDir.yml
+
+- name: Include setupStorageDir tasks
+  import_tasks: setupStorageDir.yml
+
+- name: Include setupRaptorDir tasks
+  import_tasks: setupRaptorDir.yml

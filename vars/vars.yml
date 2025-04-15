@@ -1,0 +1,6 @@
+# здесь будет указываться переменные как ссылка на gitlab репозитории, пароли и ключи
+# используется внутри роли setupSessionsDir
+pass_for_sshfs_session: ""
+# используется внутри роли setupRaptor
+raptor_repo_url: ""
+env_hash: ""

@@ -1,0 +1,14 @@
+<?php
+
+ error_reporting(E_ALL);
+ ini_set('display_errors', 'On');
+
+
+require_once __DIR__ . './../raptor/vendor/autoload.php';
+
+$api = new Axsmak\Raptor\Api();
+
+$api->run();
+
+header('Content-Type: application/json');
+echo json_encode($api->getResponse());

@@ -34,24 +34,19 @@
   when: cert_valid_check.stat.exists
   # Проверяем срок сертификата если сертификат существует
 
-- name: Set fact for cert_expiring
-  set_fact:
-    cert_expiring: "{{ cert_days_remaining.stdout | int }}"
-  when: cert_valid_check.stat.exists
-
 - name: Stop Apache2 service before Certbot standalone challenge
   service:
     name: apache2
     state: stopped
-  when: not cert_valid_check.stat.exists or cert_expiring < 30
+  when: not cert_valid_check.stat.exists or (cert_days_remaining.stdout | default("0") | int) < 30
 
 - name: Obtain SSL certificate using Certbot
   command: certbot certonly --standalone --non-interactive --agree-tos --email admin@gmail.com -d {{ inventory_hostname }}
   register: certbot_result
-  when: not cert_valid_check.stat.exists or cert_expiring < 30
+  when: not cert_valid_check.stat.exists or (cert_days_remaining.stdout | default("0") | int) < 30
 
 - name: Start Apache2 service
   service:
     name: apache2
     state: restarted
-  when: not cert_valid_check.stat.exists or cert_expiring < 30
+  when: not cert_valid_check.stat.exists or (cert_days_remaining.stdout | default("0") | int) < 30

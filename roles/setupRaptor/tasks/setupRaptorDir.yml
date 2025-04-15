@@ -1,0 +1,33 @@
+---
+- name: Clone Raptor repository into /var/www/raptor
+  git:
+    repo: "{{ raptor_repo_url }}"
+    dest: /var/www/raptor
+    update: yes
+    force: no
+
+- name: Generate the .env file
+  template:
+    src: "{{ 'envm1.j2' if 'm1' in inventory_hostname else ('envm2.j2' if 'm2' in inventory_hostname else 'envm0.j2') }}"
+    dest: /var/www/raptor/.env
+    mode: "0644"
+
+- name: Check if vendor directory exists
+  stat:
+    path: /var/www/raptor/vendor
+  register: composer_vendor_dir
+
+- name: Composer install as www-data
+  community.general.composer:
+    command: install
+    working_dir: /var/www/raptor
+  environment:
+    COMPOSER_NO_INTERACTION: "1"
+  when: not composer_vendor_dir.stat.exists
+
+- name: Change owner of /var/www/raptor recursively
+  file:
+    path: /var/www/raptor
+    owner: www-data
+    group: www-data
+    recurse: yes
