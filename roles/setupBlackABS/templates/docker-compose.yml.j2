@@ -1,0 +1,54 @@
+version: "3.8"
+
+networks:
+  cluster-abs:
+
+services:
+  abs:
+    container_name: ${APP_NAME?:err}.abs
+    build:
+      context: ./abs
+    ports:
+      - "${ABS_PORT:-8080}:80"
+    restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+      - "test.test:host-gateway"
+      - "crmka.back.test:host-gateway"
+    volumes:
+      - ./abs:/app
+      - node_modules_abs:/app/node_modules
+    networks:
+      - cluster-abs
+
+  redis:
+    container_name: ${APP_NAME?:err}.black-redis
+    image: 'bitnami/redis:latest'
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    networks:
+      - cluster-abs
+
+  black-app:
+    container_name: ${APP_NAME?:err}.black-app
+    ports:
+      - "${APP_PORT:-87}:80"
+    build:
+      context: ./black-app
+    restart: unless-stopped
+    volumes:
+      - ./black-app:/app
+      - node_modules_black:/app/node_modules
+    networks:
+      - cluster-abs
+#    environment:
+#      - http_proxy=http://${proxy_user}:${proxy_password}@${proxy}
+#      - https_proxy=http://${proxy_user}:${proxy_password}@${proxy}
+#      - ftp_proxy=http://${proxy_user}:${proxy_password}@${proxy}
+#      - no_proxy=${no_proxy}
+#      - proxy_user=${proxy_user}
+#      - proxy_password=${proxy_password}
+
+volumes:
+  node_modules_abs:
+  node_modules_black:

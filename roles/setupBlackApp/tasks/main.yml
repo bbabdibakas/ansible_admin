@@ -1,22 +1,30 @@
 ---
-- name: Ensure /var/www directory exists
-  file:
-    path: /var/www
-    state: directory
+- name: "Check if {{ black_app_path }} directory exists"
+  stat:
+    path: "{{ black_app_path }}"
+  register: repo_cloned
 
-- name: Ensure /var/www/docker-message directory exists
-  file:
-    path: /var/www/docker-message
-    state: directory
-    mode: "0755"
+- name: Clone BlackApp repository
+  git:
+    repo: "{{ black_app_repo_url }}"
+    dest: "{{ black_app_path }}"
+  when: not repo_cloned.stat.exists
 
-- name: Include setupRepositories task
-  include_tasks: setupRepositories.yml
-  loop:
-    - pod1
-    - pod2
-    - pod3
-    - pod4
-    - pod5
-  loop_control:
-    loop_var: pod_name
+- name: Check if node_modules exists
+  stat:
+    path: "{{ black_app_path }}/node_modules"
+  register: npm_installed
+
+- name: Run npm install
+  shell: |
+    if [ -d {{ black_app_path }} ]; then
+      cd {{ black_app_path }} && npm install
+    fi
+  when: not npm_installed.stat.exists
+
+- name: Generate .env file for each pod from template
+  template:
+    src: "env.j2"
+    dest: "{{ black_app_path }}/.env"
+    mode: "0644"
+    backup: yes

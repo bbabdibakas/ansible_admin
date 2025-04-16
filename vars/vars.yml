@@ -17,3 +17,13 @@ rabbitmg_user_m2: ""
 rabbitmg_pass_m2: ""
 # используется внутри роли setupHttpRiva
 http_riva_repo_url: ""
+# используется внутри роли setupBlackABS
+black_abs_repo_url: ""
+# используется внутри роли setupBlackABS, setupBlackApp
+PUPPETEER_PROXY_SERVER: ""
+PROXY_USERNAME: ""
+PROXY_PASSWORD: ""
+# используется внутри роли setupBlackApp
+black_app_repo_url: ""
+APP_USERNAME: ""
+APP_PASSWORD: ""

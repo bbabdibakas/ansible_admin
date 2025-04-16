@@ -26,6 +26,7 @@
             name: setupABS
           vars:
             abs_path: "/var/www/abs"
+            raptor_api_url: "http://127.0.0.1:8080"
 
         - name: Include setupHttpRiva role
           include_role:

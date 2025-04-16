@@ -1,0 +1,47 @@
+---
+- name: Clone BlackABS repository
+  git:
+    repo: "{{ black_abs_repo_url }}"
+    dest: "/var/www/docker-message/{{ pod_name }}"
+    update: yes
+    force: no
+
+- name: "Include BlackApp role for {{ pod_name }}"
+  include_role:
+    name: setupBlackApp
+  vars:
+    black_app_path: "/var/www/docker-message/{{ pod_name }}/black-app"
+
+- name: "Include setupABS role for {{ pod_name }}"
+  include_role:
+    name: setupABS
+  vars:
+    abs_path: "/var/www/docker-message/{{ pod_name }}/abs"
+    raptor_api_url: "http://host.docker.internal:8080"
+
+- name: Generate .env file for each pod from template
+  template:
+    src: "env.j2"
+    dest: "/var/www/docker-message/{{ pod_name }}/.env"
+    mode: '0644'
+    backup: yes
+  vars:
+    app_ports:
+      pod1: 777
+      pod2: 778
+      pod3: 779
+      pod4: 780
+      pod5: 781
+    abs_ports:
+      pod1: 8081
+      pod2: 8082
+      pod3: 8083
+      pod4: 8084
+      pod5: 8085
+
+- name: Generate docker-compose.yml file
+  template:
+    src: "docker-compose.yml.j2"
+    dest: "/var/www/docker-message/{{ pod_name }}/docker-compose.yml"
+    mode: "0644"
+    backup: yes

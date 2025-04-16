@@ -1,12 +1,4 @@
 ---
-- name: Ensure dependencies are installed
-  apt:
-    name:
-      - nodejs
-    state: latest # Проверка на установку каждого пакета, также обновляет версию пакета если он уже установлен и доступна новая версия
-    update_cache: true
-    cache_valid_time: 3600
-
 - name: "Check if {{ abs_path }} directory exists"
   stat:
     path: "{{ abs_path }}"

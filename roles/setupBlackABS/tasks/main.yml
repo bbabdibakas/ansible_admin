@@ -1,0 +1,22 @@
+---
+- name: Ensure /var/www directory exists
+  file:
+    path: /var/www
+    state: directory
+
+- name: Ensure /var/www/docker-message directory exists
+  file:
+    path: /var/www/docker-message
+    state: directory
+    mode: "0755"
+
+- name: Include setupRepositories task
+  include_tasks: setupRepositories.yml
+  loop:
+    - pod1
+    - pod2
+    - pod3
+    - pod4
+    - pod5
+  loop_control:
+    loop_var: pod_name

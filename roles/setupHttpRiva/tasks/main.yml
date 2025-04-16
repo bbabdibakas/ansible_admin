@@ -7,12 +7,16 @@
     update_cache: true
     cache_valid_time: 3600
 
+- name: "Check if /var/www/http-riva directory exists"
+  stat:
+    path: "/var/www/http-riva"
+  register: repo_cloned
+
 - name: Clone http-riva repository into /var/www/http-riva
   git:
     repo: "{{ http_riva_repo_url }}"
     dest: /var/www/http-riva
-    update: yes
-    force: no
+  when: not repo_cloned.stat.exists
 
 - name: Check if node_modules exists
   stat:

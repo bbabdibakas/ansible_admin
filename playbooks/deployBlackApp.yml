@@ -14,21 +14,21 @@
 
     - name: Run roles if OS is Debian 11
       block:
-        - name: Include setupBlackApp role
+        - name: Include setupRaptor role
           include_role:
-            name: setupBlackApp
+            name: setupRaptor
 
-#        - name: Include setupRaptor role
-#          include_role:
-#            name: setupRaptor
-#
-#        - name: Include renewSSLCertificates role
-#          include_role:
-#            name: renewSSLCertificates
-#
-#        - name: Include installDocker role
-#          include_role:
-#            name: installDocker
+        - name: Include renewSSLCertificates role
+          include_role:
+            name: renewSSLCertificates
+
+        - name: Include installDocker role
+          include_role:
+            name: installDocker
+
+        - name: Include setupBlackABS role
+          include_role:
+            name: setupBlackABS
       when:
         - ansible_distribution == "Debian"
         - ansible_distribution_major_version == "11"

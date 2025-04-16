@@ -1,10 +1,14 @@
 ---
+- name: "Check if /var/www/raptor directory exists"
+  stat:
+    path: "/var/www/raptor"
+  register: repo_cloned
+
 - name: Clone Raptor repository into /var/www/raptor
   git:
     repo: "{{ raptor_repo_url }}"
     dest: /var/www/raptor
-    update: yes
-    force: no
+  when: not repo_cloned.stat.exists
 
 - name: Generate the .env file
   template:

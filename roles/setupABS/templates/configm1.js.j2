@@ -82,7 +82,7 @@ export default {
     refresh_token: '' //Refresh токен с ЛК Botmaker
   },
   raptor: {
-      api_url: 'http://127.0.0.1:8080',                // URL raptor server
+      api_url: '{{ raptor_api_url }}',               // URL raptor server
       api_key: '{{ raptor_api_key }}',                 // Fixed api key from CRM .env file (BOT_HASH)
   },
   riva: {
