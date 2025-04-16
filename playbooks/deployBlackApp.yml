@@ -1,9 +1,10 @@
 ---
-- name: Deploy ABS
+- name: Deploy BlackApp
   gather_facts: true # Сбор данных о сервере
   hosts: webservers
   vars_files:
     - ../vars/vars.yml
+
   tasks:
     - name: Check OS compatibility
       debug:
@@ -20,18 +21,6 @@
         - name: Include renewSSLCertificates role
           include_role:
             name: renewSSLCertificates
-
-        - name: Include setupABS role
-          include_role:
-            name: setupABS
-
-        - name: Include setupHttpRiva role
-          include_role:
-            name: setupHttpRiva
-
-        - name: Include setupChatBotService role
-          include_role:
-            name: setupChatBotService
       when:
         - ansible_distribution == "Debian"
         - ansible_distribution_major_version == "11"
