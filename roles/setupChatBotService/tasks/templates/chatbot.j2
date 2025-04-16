@@ -1,0 +1,54 @@
+#!/bin/sh
+
+### BEGIN INIT INFO
+# Provides:          chatbot
+# Required-Start:
+# Required-Stop:
+# Default-Start:     2 3 4 5
+# Default-Stop:      1 0 6
+# Short-Description: ...
+# Description: ...
+### END INIT INFO
+
+do_start () {
+
+while true ; do
+    sleep 10
+    if ! pgrep abs ; then
+        killall abs
+        tmux new-session -d -s my_session 'npm run start --prefix /var/www/abs'
+    fi
+done
+
+}
+
+do_status () {
+        if pgrep chatbot ; then
+                echo "\033[35m\tchabot\t\033[33m\t"
+                return 0
+        else
+                return 4
+        fi
+}
+
+
+case "$1" in
+start|"")
+        do_start
+        ;;
+restart|reload|force-reload)
+        echo "Error: argument '$1' not supported" >&2
+        exit 3
+        ;;
+stop)
+        # No-op
+        ;;
+status)
+        do_status
+        exit $?
+        ;;
+*)
+        echo "Usage: 'chatbot' [start|stop|status]" >&2
+        exit 1
+        ;;
+esac
