@@ -24,6 +24,8 @@
         - name: Include setupABS role
           include_role:
             name: setupABS
+          vars:
+            abs_path: "/var/www/abs"
 
         - name: Include setupHttpRiva role
           include_role:

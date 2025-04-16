@@ -1,0 +1,12 @@
+---
+- name: "Ensure /var/www/docker-message/{{ pod_name }} directory exists"
+  file:
+    path: /var/www/docker-message/{{ pod_name }}
+    state: directory
+    mode: "0755"
+
+- name: "Include setupABS role for {{ pod_name }}"
+  include_role:
+    name: setupABS
+  vars:
+    abs_path: "/var/www/docker-message/{{ pod_name }}/abs"

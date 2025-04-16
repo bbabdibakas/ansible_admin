@@ -7,36 +7,40 @@
     update_cache: true
     cache_valid_time: 3600
 
-- name: Clone ABS repository into /var/www/abs
+- name: "Check if {{ abs_path }} directory exists"
+  stat:
+    path: "{{ abs_path }}"
+  register: repo_cloned
+
+- name: Clone ABS repository
   git:
     repo: "{{ abs_repo_url }}"
-    dest: /var/www/abs
-    update: yes
-    force: no
+    dest: "{{ abs_path }}"
+  when: not repo_cloned.stat.exists
 
 - name: Check if node_modules exists
   stat:
-    path: /var/www/abs/node_modules
+    path: "{{ abs_path }}/node_modules"
   register: npm_installed
 
 - name: Run npm install
   shell: |
-    if [ -d /var/www/abs ]; then
-      cd /var/www/abs && npm install
+    if [ -d {{ abs_path }} ]; then
+      cd {{ abs_path }} && npm install
     fi
   when: not npm_installed.stat.exists
 
 - name: Run npm update @mtproto/core
   shell: |
-    if [ -d /var/www/abs ]; then
-      cd /var/www/abs && npm update @mtproto/core
+    if [ -d {{ abs_path }} ]; then
+      cd {{ abs_path }} && npm update @mtproto/core
     fi
-  when: npm_installed.stat.exists
+  when: not npm_installed.stat.exists
 
 - name: Generate the config.js file
   template:
     src: "{{ 'configm1.js.j2' if 'm1' in inventory_hostname else ('configm2.js.j2' if 'm2' in inventory_hostname else 'configm0.js.j2') }}"
-    dest: "/var/www/abs/config.js"
+    dest: "{{ abs_path }}/config.js"
     owner: root
     group: root
     mode: 0644
