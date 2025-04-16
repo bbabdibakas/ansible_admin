@@ -21,6 +21,10 @@
         - name: Include renewSSLCertificates role
           include_role:
             name: renewSSLCertificates
+
+        - name: Include installDocker role
+          include_role:
+            name: installDocker
       when:
         - ansible_distribution == "Debian"
         - ansible_distribution_major_version == "11"
