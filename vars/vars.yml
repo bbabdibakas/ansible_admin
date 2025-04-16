@@ -3,10 +3,12 @@
 pass_for_sshfs_session: ""
 # используется внутри роли setupRaptor/setupRaptorDir
 raptor_repo_url: ""
+# используется внутри роли setupABS, setupRaptor/setupRaptorDir
 raptor_api_key: ""
 # используется внутри роли setupABS
 abs_repo_url: ""
 file_storage_api_key: ""
+wmc_api_key: ""
 rabbitmg_user_m0: ""
 rabbitmg_pass_m0: ""
 rabbitmg_user_m1: ""
